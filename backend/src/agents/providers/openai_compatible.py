@@ -6,7 +6,7 @@ from typing import Any, AsyncGenerator, Optional
 import httpx
 
 from src.agents.providers.base import LLMProvider, ProviderStreamDelta
-from src.schemas.providers import ProviderMetadata, ProviderModel, ProviderType
+from src.schemas.providers import ProviderMetadata, ProviderModel
 
 
 class OpenAICompatibleProvider(LLMProvider):
@@ -112,7 +112,7 @@ class OpenAICompatibleProvider(LLMProvider):
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         }
-        if self.metadata.id == ProviderType.OPENROUTER:
+        if self.metadata.id == "openrouter":
             headers["X-Title"] = "Novita Agent Studio"
         return headers
 

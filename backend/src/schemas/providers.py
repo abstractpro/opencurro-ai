@@ -1,18 +1,9 @@
-from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
 
-class ProviderType(str, Enum):
-    OPENROUTER = "openrouter"
-    GROQ = "groq"
-    NVIDIA = "nvidia"
-    FIREWORKS = "fireworks"
-    OLLAMA_CLOUD = "ollama_cloud"
-    OPENCODE_ZEN = "opencode_zen"
-    AIHUBMIX = "aihubmix"
-    BLUECLAW = "blueclaw"
+ProviderType = str
 
 
 class ProviderMetadata(BaseModel):

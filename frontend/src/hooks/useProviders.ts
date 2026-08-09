@@ -1,66 +1,73 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { fetchModels, fetchProviders } from '@/lib/api'
+import { fetchModelsDevCatalog, getProviderDisplayList, getProviderModels } from '@/lib/modelsDev'
 import { useSettingsStore } from '@/store/useSettingsStore'
-import type { ProviderId } from '@/types/chat'
+import type { ModelsDevModel, ProviderDisplayInfo } from '@/types/modelsDev'
 
 export function useProviders() {
   const {
-    providerCatalog,
-    providerKeys,
-    providerBaseUrls,
+    modelsDevCatalog,
     selectedProvider,
     selectedModel,
-    setModelsForProvider,
-    setProviderCatalog,
+    setModelsDevCatalog,
     setSelectedModel,
   } = useSettingsStore()
-  const [loadingProviders, setLoadingProviders] = useState(false)
-  const [loadingModels, setLoadingModels] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    if (modelsDevCatalog) return
     const run = async () => {
       try {
-        setLoadingProviders(true)
-        const providers = await fetchProviders()
-        setProviderCatalog(providers)
+        setLoading(true)
+        setError('')
+        const catalog = await fetchModelsDevCatalog()
+        setModelsDevCatalog(catalog)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load providers')
+        setError(err instanceof Error ? err.message : 'Failed to load provider catalog')
       } finally {
-        setLoadingProviders(false)
+        setLoading(false)
       }
     }
     void run()
-  }, [setProviderCatalog])
+  }, [modelsDevCatalog, setModelsDevCatalog])
 
-  const loadModels = async (provider: ProviderId = selectedProvider) => {
-    const apiKey = providerKeys[provider]
-    if (!apiKey) {
-      setError(`Add a ${provider} API key first.`)
-      return
-    }
-
+  const refresh = useCallback(async () => {
     try {
-      setLoadingModels(true)
+      setLoading(true)
       setError('')
-      const models = await fetchModels(provider, apiKey, providerBaseUrls[provider])
-      setModelsForProvider(provider, models)
-      if (provider === selectedProvider && !selectedModel && models[0]) {
-        setSelectedModel(models[0].id)
-      }
+      const catalog = await fetchModelsDevCatalog(true)
+      setModelsDevCatalog(catalog)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load models')
+      setError(err instanceof Error ? err.message : 'Failed to refresh provider catalog')
     } finally {
-      setLoadingModels(false)
+      setLoading(false)
     }
-  }
+  }, [setModelsDevCatalog])
+
+  const providers: ProviderDisplayInfo[] = useMemo(
+    () => (modelsDevCatalog ? getProviderDisplayList(modelsDevCatalog) : []),
+    [modelsDevCatalog],
+  )
+
+  const currentModels: ModelsDevModel[] = useMemo(
+    () => (modelsDevCatalog ? getProviderModels(modelsDevCatalog, selectedProvider) : []),
+    [modelsDevCatalog, selectedProvider],
+  )
+
+  const selectFirstModel = useCallback(() => {
+    if (currentModels.length > 0 && !selectedModel) {
+      setSelectedModel(currentModels[0].id)
+    }
+  }, [currentModels, selectedModel, setSelectedModel])
 
   return {
-    providerCatalog,
-    loadingProviders,
-    loadingModels,
+    catalog: modelsDevCatalog,
+    providers,
+    models: currentModels,
+    loading,
     error,
-    loadModels,
+    refresh,
+    selectFirstModel,
   }
 }

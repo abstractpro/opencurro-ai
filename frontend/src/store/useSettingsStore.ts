@@ -2,13 +2,14 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 import type { ProviderId, SubAgentConfig } from '@/types/chat'
+import type { ModelsDevCatalog } from '@/types/modelsDev'
 import type { ProviderMetadata, ProviderModel } from '@/types/provider'
 
 export type SearchProvider = 'tavily' | 'exa' | 'serpapi'
 
 interface SettingsState {
-  providerKeys: Record<ProviderId, string>
-  providerBaseUrls: Record<ProviderId, string>
+  providerKeys: Record<string, string>
+  providerBaseUrls: Record<string, string>
   selectedProvider: ProviderId
   selectedModel: string
   novitaApiKey: string
@@ -19,7 +20,8 @@ interface SettingsState {
   searchProvider: SearchProvider
   firecrawlApiKey: string
   providerCatalog: ProviderMetadata[]
-  modelsByProvider: Record<ProviderId, ProviderModel[]>
+  modelsByProvider: Record<string, ProviderModel[]>
+  modelsDevCatalog: ModelsDevCatalog | null
   subAgents: SubAgentConfig[]
   setProviderKey: (provider: ProviderId, value: string) => void
   setProviderBaseUrl: (provider: ProviderId, value: string) => void
@@ -34,6 +36,7 @@ interface SettingsState {
   setFirecrawlApiKey: (value: string) => void
   setProviderCatalog: (providers: ProviderMetadata[]) => void
   setModelsForProvider: (provider: ProviderId, models: ProviderModel[]) => void
+  setModelsDevCatalog: (catalog: ModelsDevCatalog) => void
   addSubAgent: (config: SubAgentConfig) => void
   updateSubAgent: (id: string, config: Partial<SubAgentConfig>) => void
   deleteSubAgent: (id: string) => void
@@ -48,17 +51,8 @@ function generateId(): string {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      providerKeys: { openrouter: '', groq: '', nvidia: '', fireworks: '', ollama_cloud: '', opencode_zen: '', aihubmix: '', blueclaw: '' },
-      providerBaseUrls: {
-        openrouter: 'https://openrouter.ai/api/v1',
-        groq: 'https://api.groq.com/openai/v1',
-        nvidia: 'https://integrate.api.nvidia.com/v1',
-        fireworks: 'https://api.fireworks.ai/inference/v1',
-        ollama_cloud: 'https://ollama.com/api/v1',
-        opencode_zen: 'https://opencode.ai/zen/v1',
-        aihubmix: 'https://api.aihubmix.com/v1',
-        blueclaw: 'https://openai.blueclaw.network/v1',
-      },
+      providerKeys: {},
+      providerBaseUrls: {},
       selectedProvider: 'openrouter',
       selectedModel: '',
       novitaApiKey: '',
@@ -69,7 +63,8 @@ export const useSettingsStore = create<SettingsState>()(
       searchProvider: 'tavily',
       firecrawlApiKey: '',
       providerCatalog: [],
-      modelsByProvider: { openrouter: [], groq: [], nvidia: [], fireworks: [], ollama_cloud: [], opencode_zen: [], aihubmix: [], blueclaw: [] },
+      modelsByProvider: {},
+      modelsDevCatalog: null,
       subAgents: [],
       setProviderKey: (provider, value) => set((state) => ({ providerKeys: { ...state.providerKeys, [provider]: value } })),
       setProviderBaseUrl: (provider, value) => set((state) => ({ providerBaseUrls: { ...state.providerBaseUrls, [provider]: value } })),
@@ -84,6 +79,7 @@ export const useSettingsStore = create<SettingsState>()(
       setFirecrawlApiKey: (value) => set({ firecrawlApiKey: value }),
       setProviderCatalog: (providerCatalog) => set({ providerCatalog }),
       setModelsForProvider: (provider, models) => set((state) => ({ modelsByProvider: { ...state.modelsByProvider, [provider]: models } })),
+      setModelsDevCatalog: (catalog) => set({ modelsDevCatalog: catalog }),
       addSubAgent: (config) => set((state) => ({
         subAgents: [...state.subAgents, { ...config, id: generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }],
       })),
