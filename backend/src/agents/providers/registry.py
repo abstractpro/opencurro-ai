@@ -63,6 +63,13 @@ class ProviderRegistry:
                     default_base_url="https://openai.blueclaw.network/v1",
                 )
             ),
+            ProviderType.ZENMUX: OpenAICompatibleProvider(
+                ProviderMetadata(
+                    id=ProviderType.ZENMUX,
+                    label="ZenMux",
+                    default_base_url="https://zenmux.ai/api/v1",
+                )
+            ),
         }
 
     def get(self, provider_type: ProviderType) -> LLMProvider:

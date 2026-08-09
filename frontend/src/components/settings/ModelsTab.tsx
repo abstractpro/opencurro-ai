@@ -7,7 +7,7 @@ import { useSettingsStore } from '@/store/useSettingsStore'
 import { cn } from '@/lib/utils'
 import type { ProviderId } from '@/types/chat'
 
-const providers: ProviderId[] = ['openrouter', 'groq', 'nvidia', 'fireworks', 'ollama_cloud', 'opencode_zen', 'aihubmix', 'blueclaw']
+const providers: ProviderId[] = ['openrouter', 'groq', 'nvidia', 'fireworks', 'ollama_cloud', 'opencode_zen', 'aihubmix', 'blueclaw', 'zenmux']
 
 const PROVIDER_META: Record<ProviderId, { description: string; iconClass: string }> = {
   openrouter: { description: 'Access any foundation model', iconClass: 'bg-[rgba(59,130,246,0.12)] text-[#3b82f6]' },
@@ -18,6 +18,7 @@ const PROVIDER_META: Record<ProviderId, { description: string; iconClass: string
   opencode_zen: { description: 'Curated coding models by OpenCode', iconClass: 'bg-[rgba(34,197,94,0.12)] text-[#22c55e]' },
   aihubmix: { description: 'Unified API for 500+ AI models', iconClass: 'bg-[rgba(99,102,241,0.12)] text-[#6366f1]' },
   blueclaw: { description: 'Cost-efficient compute for agent workloads', iconClass: 'bg-[rgba(56,189,248,0.12)] text-[#38bdf8]' },
+  zenmux: { description: 'Unified gateway for 100+ AI models', iconClass: 'bg-[rgba(217,70,239,0.12)] text-[#d946ef]' },
 }
 
 export function ModelsTab() {
