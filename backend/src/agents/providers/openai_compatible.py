@@ -112,6 +112,7 @@ class OpenAICompatibleProvider(LLMProvider):
             return
         detail = f"HTTP {response.status_code}"
         try:
+            await response.aread()
             body = response.json()
             error = body.get("error") or body
             if isinstance(error, dict):
