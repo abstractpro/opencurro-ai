@@ -18,7 +18,7 @@ class OpenAICompatibleProvider(LLMProvider):
         headers = self._headers(api_key)
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(endpoint, headers=headers)
-            response.raise_for_status()
+            await self._raise_for_provider_status(response)
             payload = response.json()
 
         items = payload.get("data", payload)
@@ -64,7 +64,7 @@ class OpenAICompatibleProvider(LLMProvider):
 
         async with httpx.AsyncClient(timeout=httpx.Timeout(90.0, connect=30.0)) as client:
             async with client.stream("POST", endpoint, headers=headers, json=payload) as response:
-                response.raise_for_status()
+                await self._raise_for_provider_status(response)
                 async for event in self._iter_sse_events(response):
                     if event == "[DONE]":
                         break
@@ -106,6 +106,26 @@ class OpenAICompatibleProvider(LLMProvider):
                     yield json.loads(data)
                 except json.JSONDecodeError:
                     continue
+
+    async def _raise_for_provider_status(self, response: httpx.Response) -> None:
+        if response.status_code < 400:
+            return
+        detail = f"HTTP {response.status_code}"
+        try:
+            body = response.json()
+            error = body.get("error") or body
+            if isinstance(error, dict):
+                message = error.get("message") or error.get("error") or ""
+                etype = error.get("type") or error.get("code") or ""
+                if message:
+                    detail = f"{etype or 'error'}: {message}" if etype else f"{message}"
+        except Exception:
+            detail = response.text[:400] or detail
+        raise httpx.HTTPStatusError(
+            f"Provider API error ({detail})",
+            request=response.request,
+            response=response,
+        )
 
     def _headers(self, api_key: str) -> dict[str, str]:
         headers = {
