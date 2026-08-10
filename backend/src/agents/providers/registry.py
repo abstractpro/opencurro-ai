@@ -91,6 +91,13 @@ class ProviderRegistry:
                     default_base_url="https://zenmux.ai/api/v1",
                 )
             ),
+            ProviderType.ANYAPI: OpenAICompatibleProvider(
+                ProviderMetadata(
+                    id=ProviderType.ANYAPI,
+                    label="AnyAPI AI",
+                    default_base_url="https://api.anyapi.ai/v1",
+                )
+            ),
         }
 
     def get(self, provider_type: ProviderType) -> LLMProvider:
