@@ -7,7 +7,7 @@ import { useSettingsStore } from '@/store/useSettingsStore'
 import { cn } from '@/lib/utils'
 import type { ProviderId } from '@/types/chat'
 
-const providers: ProviderId[] = ['openrouter', 'groq', 'nvidia', 'fireworks', 'ollama_cloud', 'opencode_zen', 'aihubmix', 'blueclaw', 'requesty', 'unorouter', 'vercel_ai_gateway', 'zenmux']
+const providers: ProviderId[] = ['openrouter', 'groq', 'nvidia', 'fireworks', 'ollama_cloud', 'opencode_zen', 'aihubmix', 'blueclaw', 'requesty', 'unorouter', 'vercel_ai_gateway', 'zenmux', 'anyapi']
 
 const PROVIDER_META: Record<ProviderId, { description: string; iconClass: string }> = {
   openrouter: { description: 'Access any foundation model', iconClass: 'bg-[rgba(59,130,246,0.12)] text-[#3b82f6]' },
@@ -22,6 +22,7 @@ const PROVIDER_META: Record<ProviderId, { description: string; iconClass: string
   unorouter: { description: 'One unified API key for 297+ AI models', iconClass: 'bg-[rgba(217,70,239,0.12)] text-[#d946ef]' },
   vercel_ai_gateway: { description: 'Unified OpenAI-compatible gateway to 275+ models', iconClass: 'bg-[rgba(113,113,122,0.12)] text-[#52525b]' },
   zenmux: { description: 'Unified API for 100+ AI models with built-in failover', iconClass: 'bg-[rgba(244,114,182,0.12)] text-[#f472b6]' },
+  anyapi: { description: 'One API for 400+ AI models with smart routing', iconClass: 'bg-[rgba(16,185,129,0.12)] text-[#10b981]' },
 }
 
 export function ModelsTab() {

@@ -17,6 +17,7 @@ class ProviderType(str, Enum):
     UNOROUTER = "unorouter"
     VERCEL_AI_GATEWAY = "vercel_ai_gateway"
     ZENMUX = "zenmux"
+    ANYAPI = "anyapi"
 
 
 class ProviderMetadata(BaseModel):
