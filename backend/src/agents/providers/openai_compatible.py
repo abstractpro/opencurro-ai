@@ -32,13 +32,43 @@ class OpenAICompatibleProvider(LLMProvider):
                     id=model_id,
                     provider=self.metadata.id,
                     label=model_id,
-                    owned_by=item.get("owned_by") or item.get("provider") or item.get("architecture", {}).get("tokenizer"),
+                    owned_by=self._first_string(item, "owned_by", "provider", "organization")
+                    or self._nested_string(item, "architecture", "tokenizer"),
                     supports_tools=True,
-                    context_window=item.get("context_length") or item.get("top_provider", {}).get("context_length") or item.get("max_context_window"),
+                    context_window=self._first_int(
+                        item, "context_length", "max_context_window", "max_model_len"
+                    )
+                    or self._nested_int(item, "top_provider", "context_length"),
                 )
             )
         models.sort(key=lambda model: model.label.lower())
         return models
+
+    def _first_string(self, item: dict[str, Any], *fields: str) -> Optional[str]:
+        for field in fields:
+            value = item.get(field)
+            if isinstance(value, str) and value:
+                return value
+        return None
+
+    def _nested_string(self, item: dict[str, Any], parent: str, child: str) -> Optional[str]:
+        nested = item.get(parent)
+        if isinstance(nested, dict):
+            return self._first_string(nested, child)
+        return None
+
+    def _first_int(self, item: dict[str, Any], *fields: str) -> Optional[int]:
+        for field in fields:
+            value = item.get(field)
+            if isinstance(value, int) and value > 0:
+                return value
+        return None
+
+    def _nested_int(self, item: dict[str, Any], parent: str, child: str) -> Optional[int]:
+        nested = item.get(parent)
+        if isinstance(nested, dict):
+            return self._first_int(nested, child)
+        return None
 
     async def stream_chat_completion(
         self,
